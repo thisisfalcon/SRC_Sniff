@@ -57,6 +57,12 @@ void MainWindow::captured(QString packet){
     if(packet.contains("x-lastUserActivity: ")){
         ui->listWidget->addItem(packet.split("x-lastUserActivity: ")[1].split("\n")[0]);
         packets.append(packet);
+    }else if(packet.contains("GET")){
+        ui->listWidget->addItem(packet.split("\n")[0]);
+        packets.append(packet);
+    }else if(packet.contains("Date: ")){
+        ui->listWidget->addItem(packet.split("Date: ")[1].split("\n")[0]);
+        packets.append(packet);
     }
 }
 
