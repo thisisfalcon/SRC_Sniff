@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QListWidgetItem>
 #include "thread.h"
 #include <pcap.h>
 
@@ -21,9 +22,12 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     Thread *t;
+    QList<QString> packets;
 
 public slots:
     void error(QString message);
