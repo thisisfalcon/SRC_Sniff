@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include "thread.h"
+#include <pcap.h>
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +23,11 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Thread *t;
+
+public slots:
+    void error(QString message);
+    void captured(QString packet);
 };
 
 #endif // MAINWINDOW_H

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <pcap.h>
 
 char errbuf[PCAP_ERRBUF_SIZE+1];
 
@@ -29,27 +28,30 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     if(ui->pushButton->text() == "Listen"){
-        pcap_t *handle = pcap_open_live(ui->comboBox->currentText().toLatin1().data(), BUFSIZ, 1, 1000, errbuf);
-        if (handle == NULL) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Error");
-            msgBox.setText("Interface \"" + ui->comboBox->currentText() + "\" could not be read.");
-            msgBox.exec();
-        }else{
-            ui->comboBox->setEnabled(false);
-            ui->pushButton->setText("Stop");
-            struct pcap_pkthdr header;	/* The header that pcap gives us */
-            const u_char *packet;
-            /* Grab a packet */
-            for(int i = 0; i < 10 ; i++){
-                packet = pcap_next(handle, &header);
-                ui->textBrowser->append("caught a packet");
-            }
-        }
+        t = new Thread(ui->comboBox->currentText());
+        ui->comboBox->setEnabled(false);
+        ui->pushButton->setText("Stop");
+        connect(t, SIGNAL(captured(QString)), this, SLOT(captured(QString)));
+        connect(t, SIGNAL(error(QString)), this, SLOT(error(QString)));
+        t->start();
     }else{
         ui->pushButton->setText("Listen");
         ui->comboBox->setEnabled(true);
+        t->terminate();
     }
 
 }
 
+void MainWindow::error(QString message){
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Error");
+    msgBox.setText(message);
+    msgBox.exec();
+    ui->pushButton->setText("Listen");
+    ui->comboBox->setEnabled(true);
+    t->terminate();
+}
+
+void MainWindow::captured(QString packet){
+    ui->textBrowser->append(packet);
+}
