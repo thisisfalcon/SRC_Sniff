@@ -104,7 +104,13 @@ void Thread::run()
                 }else if(((int)ip->ip_p) == 17){
                     head.append("\t(UDP)");
                 }
-                emit captured(QString::fromUtf8((char *)payload), head);
+                QString stuff= QString::fromUtf8((char *)payload);
+                int i;
+                for(i = 0; i<stuff.length(); i++){
+                    if(stuff.at(i).unicode() > 127)
+                        break;
+                }
+                emit captured(stuff.mid(0, i), head);
             }
         //}
     }
