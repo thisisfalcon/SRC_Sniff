@@ -32,7 +32,7 @@ void MainWindow::on_pushButton_clicked()
         t = new Thread(ui->comboBox->currentText());
         ui->comboBox->setEnabled(false);
         ui->pushButton->setText("Stop");
-        connect(t, SIGNAL(captured(QString)), this, SLOT(captured(QString)));
+        connect(t, SIGNAL(captured(QString, QString)), this, SLOT(captured(QString, QString)));
         connect(t, SIGNAL(error(QString)), this, SLOT(error(QString)));
         t->start();
     }else{
@@ -53,15 +53,9 @@ void MainWindow::error(QString message){
     t->terminate();
 }
 
-void MainWindow::captured(QString packet){
-    if(packet.contains("x-lastUserActivity: ")){
-        ui->listWidget->addItem(packet.split("x-lastUserActivity: ")[1].split("\n")[0]);
-        packets.append(packet);
-    }else if(packet.contains("GET")){
-        ui->listWidget->addItem(packet.split("\n")[0]);
-        packets.append(packet);
-    }else if(packet.contains("Date: ")){
-        ui->listWidget->addItem(packet.split("Date: ")[1].split("\n")[0]);
+void MainWindow::captured(QString packet, QString header){
+    if(packet.contains("x-lastUserActivity: ") || packet.contains("GET") || packet.contains("Date: ") || packet.contains("HTTP")){
+        ui->listWidget->addItem(header);
         packets.append(packet);
     }
 }

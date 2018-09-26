@@ -31,7 +31,7 @@ private:
 
 public slots:
     void error(QString message);
-    void captured(QString packet);
+    void captured(QString packet, QString header);
 };
 
 #endif // MAINWINDOW_H

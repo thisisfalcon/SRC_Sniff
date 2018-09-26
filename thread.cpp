@@ -2,6 +2,12 @@
 #define SIZE_ETHERNET 14
 #define ETHER_ADDR_LEN	6
 
+    typedef struct ip_address{
+        u_char byte1;
+        u_char byte2;
+        u_char byte3;
+        u_char byte4;
+    }ip_address;
     /* Ethernet header */
     struct sniff_ethernet {
         u_char ether_dhost[ETHER_ADDR_LEN]; /* Destination host address */
@@ -23,7 +29,7 @@
         u_char ip_ttl;		/* time to live */
         u_char ip_p;		/* protocol */
         u_short ip_sum;		/* checksum */
-        //struct in_addr ip_src,ip_dst; /* source and dest address */
+        ip_address ip_src,ip_dst; /* source and dest address */
     };
     #define IP_HL(ip)		(((ip)->ip_vhl) & 0x0f)
     #define IP_V(ip)		(((ip)->ip_vhl) >> 4)
@@ -70,9 +76,9 @@ void Thread::run()
     if (handle == NULL) {
         emit error("Interface \"" + interface + "\" could not be read.");
     }else{
-        if (pcap_datalink(handle) != DLT_EN10MB) {
+        /*if (pcap_datalink(handle) != DLT_EN10MB) {
             emit error("Interface \"" + interface + "\" doesn't provide Ethernet headers - not supported\n");
-        }else{
+        }else{*/
             struct pcap_pkthdr header;
             const u_char *packet;
             const struct sniff_ethernet *ethernet; /* The ethernet header */
@@ -90,8 +96,16 @@ void Thread::run()
                 tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
                 size_tcp = TH_OFF(tcp)*4;
                 payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
-                emit captured(QString::fromStdString((char *)payload));
+                QString source = QString::number((int)ip->ip_src.byte1) + "." + QString::number((int)ip->ip_src.byte2) + "." + QString::number((int)ip->ip_src.byte3) + "." + QString::number((int)ip->ip_src.byte4) + ":" + QString::number((int)tcp->th_sport);
+                QString dest = QString::number((int)ip->ip_dst.byte1) + "." + QString::number((int)ip->ip_dst.byte2) + "." + QString::number((int)ip->ip_dst.byte3) + "." + QString::number((int)ip->ip_dst.byte4)  + ":" + QString::number((int)tcp->th_dport);
+                QString head = "From: " + source + "\tTo: " + dest;
+                if(((int)ip->ip_p) == 6){
+                    head.append("\t(TCP)");
+                }else if(((int)ip->ip_p) == 17){
+                    head.append("\t(UDP)");
+                }
+                emit captured(QString::fromUtf8((char *)payload), head);
             }
-        }
+        //}
     }
 }

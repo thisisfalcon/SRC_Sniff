@@ -14,6 +14,6 @@ private:
     QString interface;
 signals:
     void error(QString message);
-    void captured(QString packet);
+    void captured(QString packet, QString header);
 };
 #endif // THREAD_H
