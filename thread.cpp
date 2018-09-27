@@ -102,9 +102,15 @@ void Thread::run()
             else if(stuff.contains("HTTP") || stuff.contains("OK"))
             {
                 type="(HTTP)";
+            }else if(((int)tcp->th_sport) == 0){
+                type=("(ping)");
             }
             QString source = QString::number((int)ip->ip_src.byte1) + "." + QString::number((int)ip->ip_src.byte2) + "." + QString::number((int)ip->ip_src.byte3) + "." + QString::number((int)ip->ip_src.byte4) + ":" + QString::number((int)tcp->th_sport);
             QString dest = QString::number((int)ip->ip_dst.byte1) + "." + QString::number((int)ip->ip_dst.byte2) + "." + QString::number((int)ip->ip_dst.byte3) + "." + QString::number((int)ip->ip_dst.byte4)  + ":" + QString::number((int)tcp->th_dport);
+            if(source.length() < 10)
+            {
+                source.append("\t");
+            }
             if(dest.length() < 10)
             {
                 dest.append("\t");
@@ -118,8 +124,10 @@ void Thread::run()
                 head.append("\t(IGMP)");
             }else if(((int)ip->ip_p) == 87){
                 head.append("\t(TCF)");
+            }else if(((int)ip->ip_p) == 1){
+                head.append("\t(ICMP)");
             }else{
-                head.append("\t" + QString::number((int)ip->ip_p));
+                head.append("\t(" + QString::number((int)ip->ip_p) + ")");
             }
             int i;
             for(i = 0; i<stuff.length(); i++){
