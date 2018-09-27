@@ -55,9 +55,11 @@ void MainWindow::error(QString message){
 
 void MainWindow::captured(QString packet, QString header){
     ui->listWidget->addItem(header);
-    if(!ui->listWidget->item(ui->listWidget->count()-1)->text().contains(ui->lineEdit->text()))
+    if(!header.contains(ui->lineEdit->text()))
     {
         ui->listWidget->item(ui->listWidget->count()-1)->setHidden(true);
+    }else{
+        ui->listWidget->scrollToBottom();
     }
     packets.append(packet);
 }
@@ -74,10 +76,15 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 void MainWindow::on_lineEdit_textChanged(const QString &arg1)
 {
     for(int row(0); row < ui->listWidget->count(); row++ )
+    {
         ui->listWidget->item(row)->setHidden(true);
+    }
     QList<QListWidgetItem*> matches ( ui->listWidget->findItems(arg1, Qt::MatchFlag::MatchContains) );
     for(QListWidgetItem* item : matches)
+    {
         item->setHidden(false);
+    }
+    ui->listWidget->scrollToBottom();
 
 }
 

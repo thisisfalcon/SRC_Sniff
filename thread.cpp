@@ -105,11 +105,21 @@ void Thread::run()
             }
             QString source = QString::number((int)ip->ip_src.byte1) + "." + QString::number((int)ip->ip_src.byte2) + "." + QString::number((int)ip->ip_src.byte3) + "." + QString::number((int)ip->ip_src.byte4) + ":" + QString::number((int)tcp->th_sport);
             QString dest = QString::number((int)ip->ip_dst.byte1) + "." + QString::number((int)ip->ip_dst.byte2) + "." + QString::number((int)ip->ip_dst.byte3) + "." + QString::number((int)ip->ip_dst.byte4)  + ":" + QString::number((int)tcp->th_dport);
+            if(dest.length() < 10)
+            {
+                dest.append("\t");
+            }
             QString head = type + "\t" + source + "\t--->\t" + dest;
             if(((int)ip->ip_p) == 6){
                 head.append("\t(TCP)");
             }else if(((int)ip->ip_p) == 17){
                 head.append("\t(UDP)");
+            }else if(((int)ip->ip_p) == 2){
+                head.append("\t(IGMP)");
+            }else if(((int)ip->ip_p) == 87){
+                head.append("\t(TCF)");
+            }else{
+                head.append("\t" + QString::number((int)ip->ip_p));
             }
             int i;
             for(i = 0; i<stuff.length(); i++){
