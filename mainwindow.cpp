@@ -54,10 +54,12 @@ void MainWindow::error(QString message){
 }
 
 void MainWindow::captured(QString packet, QString header){
-    if(packet.contains("x-lastUserActivity: ") || packet.contains("GET") || packet.contains("Date: ") || packet.contains("HTTP")){
-        ui->listWidget->addItem(header);
-        packets.append(packet);
+    ui->listWidget->addItem(header);
+    if(!ui->listWidget->item(ui->listWidget->count()-1)->text().contains(ui->lineEdit->text()))
+    {
+        ui->listWidget->item(ui->listWidget->count()-1)->setHidden(true);
     }
+    packets.append(packet);
 }
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -67,4 +69,20 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     msgBox.setWindowTitle(item->text());
     msgBox.setText(packets.at(i));
     msgBox.exec();
+}
+
+void MainWindow::on_lineEdit_textChanged(const QString &arg1)
+{
+    for(int row(0); row < ui->listWidget->count(); row++ )
+        ui->listWidget->item(row)->setHidden(true);
+    QList<QListWidgetItem*> matches ( ui->listWidget->findItems(arg1, Qt::MatchFlag::MatchContains) );
+    for(QListWidgetItem* item : matches)
+        item->setHidden(false);
+
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    ui->listWidget->clear();
+    packets.clear();
 }

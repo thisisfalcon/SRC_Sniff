@@ -76,42 +76,47 @@ void Thread::run()
     if (handle == NULL) {
         emit error("Interface \"" + interface + "\" could not be read.");
     }else{
-        /*if (pcap_datalink(handle) != DLT_EN10MB) {
-            emit error("Interface \"" + interface + "\" doesn't provide Ethernet headers - not supported\n");
-        }else{*/
-            struct pcap_pkthdr header;
-            const u_char *packet;
-            const struct sniff_ethernet *ethernet; /* The ethernet header */
-            const struct sniff_ip *ip; /* The IP header */
-            const struct sniff_tcp *tcp; /* The TCP header */
-            const u_char *payload; /* Packet payload */
-            u_int size_ip;
-            u_int size_tcp;
-            /* Grab a packet */
-            while(1){
-                packet = pcap_next(handle, &header);
-                ethernet = (struct sniff_ethernet*)(packet);
-                ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
-                size_ip = IP_HL(ip)*4;
-                tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
-                size_tcp = TH_OFF(tcp)*4;
-                payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
-                QString source = QString::number((int)ip->ip_src.byte1) + "." + QString::number((int)ip->ip_src.byte2) + "." + QString::number((int)ip->ip_src.byte3) + "." + QString::number((int)ip->ip_src.byte4) + ":" + QString::number((int)tcp->th_sport);
-                QString dest = QString::number((int)ip->ip_dst.byte1) + "." + QString::number((int)ip->ip_dst.byte2) + "." + QString::number((int)ip->ip_dst.byte3) + "." + QString::number((int)ip->ip_dst.byte4)  + ":" + QString::number((int)tcp->th_dport);
-                QString head = "From: " + source + "\tTo: " + dest;
-                if(((int)ip->ip_p) == 6){
-                    head.append("\t(TCP)");
-                }else if(((int)ip->ip_p) == 17){
-                    head.append("\t(UDP)");
-                }
-                QString stuff= QString::fromUtf8((char *)payload);
-                int i;
-                for(i = 0; i<stuff.length(); i++){
-                    if(stuff.at(i).unicode() > 127)
-                        break;
-                }
-                emit captured(stuff.mid(0, i), head);
+        struct pcap_pkthdr header;
+        const u_char *packet;
+        const struct sniff_ethernet *ethernet; /* The ethernet header */
+        const struct sniff_ip *ip; /* The IP header */
+        const struct sniff_tcp *tcp; /* The TCP header */
+        const u_char *payload; /* Packet payload */
+        u_int size_ip;
+        u_int size_tcp;
+        /* Grab a packet */
+        while(1){
+            packet = pcap_next(handle, &header);
+            ethernet = (struct sniff_ethernet*)(packet);
+            ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
+            size_ip = IP_HL(ip)*4;
+            tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+            size_tcp = TH_OFF(tcp)*4;
+            payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+            QString stuff= QString::fromUtf8((char *)payload);
+            QString type;
+            if(stuff.contains("GET"))
+            {
+                type="(GET)";
             }
-        //}
+            else if(stuff.contains("HTTP") || stuff.contains("OK"))
+            {
+                type="(HTTP)";
+            }
+            QString source = QString::number((int)ip->ip_src.byte1) + "." + QString::number((int)ip->ip_src.byte2) + "." + QString::number((int)ip->ip_src.byte3) + "." + QString::number((int)ip->ip_src.byte4) + ":" + QString::number((int)tcp->th_sport);
+            QString dest = QString::number((int)ip->ip_dst.byte1) + "." + QString::number((int)ip->ip_dst.byte2) + "." + QString::number((int)ip->ip_dst.byte3) + "." + QString::number((int)ip->ip_dst.byte4)  + ":" + QString::number((int)tcp->th_dport);
+            QString head = type + "\t" + source + "\t--->\t" + dest;
+            if(((int)ip->ip_p) == 6){
+                head.append("\t(TCP)");
+            }else if(((int)ip->ip_p) == 17){
+                head.append("\t(UDP)");
+            }
+            int i;
+            for(i = 0; i<stuff.length(); i++){
+                if(stuff.at(i).unicode() > 127)
+                    break;
+            }
+            emit captured(stuff.mid(0, i), head);
+        }
     }
 }

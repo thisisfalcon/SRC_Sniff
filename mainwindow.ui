@@ -36,10 +36,24 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="text">
+           <string>Reset</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
        <widget class="QListWidget" name="listWidget"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="placeholderText">
+         <string>Filter</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -51,7 +65,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>18</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
